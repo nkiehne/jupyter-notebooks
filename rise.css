@@ -1,0 +1,20 @@
+.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6{
+	font-family: Gill Sans MT;
+	color: rgb(0,96,147);
+}
+
+.reveal h1{
+	font-size: 72px;
+}
+
+div.ifis_large{
+	position: absolute;
+	right: -80px;
+	bottom: -80px;
+}
+
+.rise-enabled #exit_b{
+	right: 0.5em;
+	top: 0.5em;
+	left: unset;
+}
