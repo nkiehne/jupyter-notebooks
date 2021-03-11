@@ -5,6 +5,11 @@
 
 .reveal h1{
 	font-size: 72px;
+*/
+	position: fixed;
+	top: -0.3em;
+	left: 1.3em;
+*/
 }
 
 div.ifis_large{
@@ -17,4 +22,25 @@ div.ifis_large{
 	right: 0.5em;
 	top: 0.5em;
 	left: unset;
+}
+
+.text_cell{
+	font-family: Gill Sans MT;
+}
+
+/* Different colors for different levels of indentation */
+.reveal ul {
+	margin-top: 0em;
+}
+.reveal ul li > ul li{
+	color: rgb(31,73,125);
+}
+.reveal ul li >ul li > ul li{
+	color: rgb(79,129,189);
+}
+.reveal ul li >ul li > ul li > ul li{
+	color: rgb(31,73,125);
+}
+.reveal ul li >ul li > ul li > ul li > ul li{
+	color: rgb(79,129,189);
 }

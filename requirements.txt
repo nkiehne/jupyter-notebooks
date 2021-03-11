@@ -1,0 +1,7 @@
+rise
+notebook
+numpy
+pandas
+matplotlib
+tensorflow-gpu
+gym
