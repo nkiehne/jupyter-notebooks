@@ -28,6 +28,10 @@ div.ifis_large{
 	font-family: Gill Sans MT;
 }
 
+.rise-enabled #notebook-container{
+	left: auto;
+}
+
 /* Different colors for different levels of indentation */
 .reveal ul {
 	margin-top: 0em;
