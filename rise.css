@@ -5,11 +5,19 @@
 
 .reveal h1{
 	font-size: 72px;
-*/
-	position: fixed;
-	top: -0.3em;
-	left: 1.3em;
-*/
+
+	/*position: fixed;*/
+	/*top: -0.3em;*/
+	/*margin-top: 0.65em !important; */
+	/*left: 1.3em;*/
+
+}
+
+.myheader{
+	right: 0px;
+	position: absolute;
+	max-height: 15%;
+	max-width: 15%;
 }
 
 div.ifis_large{
@@ -24,13 +32,65 @@ div.ifis_large{
 	left: unset;
 }
 
+.reveal hr{
+	background-color: rgb(150,191,13);
+	height: 2px;
+	box-shadow: 0px 3px 4px rgba(0,0,0,0.1);
+}
+
+
+.reveal section.stack>section::-webkit-scrollbar,
+.reveal section.stack::-webkit-scrollbar
+{
+  display: none;
+}
+
+.reveal .stack>section,
+.reveal section.stack{
+	overflow: scroll;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.reveal .output_subarea>pre,
+.reveal .output_text>pre,
+.reveal .output_stream>pre,
+.reveal .output_stdout>pre
+{
+	//position: absolute;
+	overflow: visible;
+	width: auto;
+}
+.reveal .out_prompt_overlay::before{
+	content: "Out:";
+	position: absolute;
+	right: 0;
+	padding: 0.4em;
+	font-weight: bold;
+}
+
+.reveal .prompt_container{
+	display: none;
+}
+
+.reveal .cell{
+	border: none;
+}
+
+.reveal .code_cell{
+	display: grid;    
+	grid-auto-columns: 50% 50%;	
+	grid-auto-flow: column;
+}
+
 .text_cell{
 	font-family: Gill Sans MT;
 }
 
 .rise-enabled #notebook-container{
-	left: auto;
+	overflow: visible;
 }
+
 
 /* Different colors for different levels of indentation */
 .reveal ul {
