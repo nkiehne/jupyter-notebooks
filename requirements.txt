@@ -1,0 +1,6 @@
+rise
+notebook
+numpy
+pandas
+matplotlib
+
