@@ -6,3 +6,4 @@ pandas
 matplotlib
 transformers
 datasets
+sklearn
