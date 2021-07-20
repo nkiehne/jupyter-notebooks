@@ -1,0 +1,7 @@
+env
+*.egg-info
+*.ipynb_checkpoints
+workspace.ipynb
+*spyproject
+*.pyc
+results

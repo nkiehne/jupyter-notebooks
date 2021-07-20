@@ -1,0 +1,8 @@
+rise
+ipywidgets
+notebook
+numpy
+pandas
+matplotlib
+transformers
+datasets
