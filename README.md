@@ -1,7 +1,11 @@
-# jupyter-notebooks
-This repository is the basic structure I use when starting a new python project based on jupyter notebooks.
-It really isn't much, but it helps me to get things started.
-Currently, it only installs `jupyter`, `rise` and some other default libraries.
+# `ai-alignment`
+***
+This repository contains code and datasets for several social alignment problems in NLP:
+1. <a href="">Moral-Stories</a>: Data & Code to reproduce the action classification task
+2. **TODO** ETHICS
+3. **TODO** MACS
+
+It serves as a starting point for my research on the Alignment Problem of AI.
 
 # Installation
 ## Windows
