@@ -1,10 +1,11 @@
 from setuptools import setup
 from setuptools import find_packages
 
-long_description = '''Jupyter Notebook repository for several different topics
+long_description = '''
+`ai-alignment` package for benchmarking AI alignment with social norms.
 '''
 
-setup(name='jupyter-notebooks',
+setup(name='ai-alignment',
       version='0.0.1',
       description='',
       long_description=long_description,
@@ -13,11 +14,9 @@ setup(name='jupyter-notebooks',
       url='www.google.de',
       download_url='www.google.de',
       license='MIT',
-      install_requires=["rise",
-                        "notebook",
-                        "numpy",
+      install_requires=["numpy",
                         "pandas",
                         "matplotlib"],
       extras_require={},
       classifiers=[],
-      packages=find_packages())
+      packages=find_packages("ailignment"))

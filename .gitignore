@@ -5,3 +5,5 @@ workspace.ipynb
 *spyproject
 *.pyc
 results
+data/*.tar
+data/*.tar.xz
