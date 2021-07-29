@@ -1,6 +1,7 @@
 rise
 ipywidgets
 notebook
+spacy[cuda112]
 numpy
 pandas
 matplotlib

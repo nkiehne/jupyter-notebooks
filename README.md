@@ -15,6 +15,10 @@ It serves as a starting point for my research on the Alignment Problem of AI.
 python -m venv env
 ```
 3. Run `run_setup.bat`
+4. Install `PyTorch`: 
+```shell
+pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio===0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+```
 4. Start jupyter with `start_jupyter.bat`
 
 ## Linux
