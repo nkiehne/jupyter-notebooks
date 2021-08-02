@@ -63,6 +63,6 @@ def get_ethics(task, split):
     filename = f"{task}_{split}.csv"
     if filename not in os.listdir(folder_path):
         raise ValueError(f"Unknown split '{split}' for task '{task}'")
-    path = os.path.join(folder + filename)
+    path = os.path.join(folder_path, filename)
     data = pd.read_csv(path)
     return data
