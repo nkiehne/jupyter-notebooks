@@ -32,8 +32,9 @@ def clean_up_mem(func=None):
     '''
     if func is not None:
         def f(*args, **kwargs):
-            func(*args, **kwargs)
+            x = func(*args, **kwargs)
             clean_up_mem()
+            return x
         f.__doc__ = func.__doc__
         return f
 
@@ -42,25 +43,28 @@ def clean_up_mem(func=None):
 
 
 @clean_up_mem
-def sequence_classification(data_func, model, compute_metrics, training_args):
+def sequence_classification(data_func, model, training_args, compute_metrics=None):
     '''
     Runs a Sequence Classification task with the given data, model, metrics
     and training arguments
 
     Parameters
     ----------
-    data_func : TYPE
-        DESCRIPTION.
-    model : TYPE
-        DESCRIPTION.
-    compute_metrics : TYPE
-        DESCRIPTION.
-    training_args : TYPE
-        DESCRIPTION.
+    data_func : function
+        A function taking a tokenizer and returning the training and eval data.
+        Their expected type is `datasets.Dataset`.
+        TODO: Could also be the tokenized dataset!
+    model : str
+        The identifier of the model you would like to train on.
+    compute_metrics : function
+        The metrics to evaluate on, if desired.
+    training_args : `transformers.TrainingArguments`
+        The arguments for training, see the corr. doc.
 
     Returns
     -------
-    None.
+    A list of the training history. Note, that all logs are in a single list,
+    disregarding whether belonging to eval or training.
 
     '''
     tokenizer = AutoTokenizer.from_pretrained(model)
@@ -73,4 +77,5 @@ def sequence_classification(data_func, model, compute_metrics, training_args):
                       eval_dataset=test, 
                       compute_metrics=compute_metrics,)
     trainer.train()
+    return trainer.state.log_history
 
