@@ -10,7 +10,8 @@ Adapted from:
 import pandas as pd
 import tarfile
 import os
-from collections import defaultdict
+
+from .util import get_data_path
 
 _TASK_MAP={
     "cm":"commonsense",
@@ -20,17 +21,20 @@ _TASK_MAP={
     "virtue":"virtue"
 }
 
-def check_data():
+def check_data(filename="ethics.tar"):
     '''
     Makes sure that the dataset is extracted and available
-    in "data/ethics/"
+    in the data folder
     '''
-    if not os.path.exists("data/ethics.tar"):
+    data_path = get_data_path()
+    tar_path = os.path.join(data_path, filename)
+    ethics_path = os.path.join(data_path, "ethics")
+    if not os.path.exists(tar_path):
         raise ValueError("You have to download the 'ETHICS' dataset first. Check README")
-    if os.path.exists("data/ethics/"):
+    if os.path.exists(ethics_path):
         return
-    with tarfile.open("data/ethics.tar") as t:
-        t.extractall("data/")
+    with tarfile.open(tar_path) as t:
+        t.extractall(data_path)
 
 
 def get_ethics(task, split):
@@ -54,10 +58,11 @@ def get_ethics(task, split):
     folder = _TASK_MAP.get(task,None)
     if folder is None:
         raise ValueError(f"Unknown task '{task}'")
-    folder = "data/ethics/" + folder + "/"
+    folder_path = os.path.join(get_data_path(),"ethics")
+    folder_path = os.path.join(folder_path,folder)
     filename = f"{task}_{split}.csv"
-    if filename not in os.listdir(folder):
+    if filename not in os.listdir(folder_path):
         raise ValueError(f"Unknown split '{split}' for task '{task}'")
-    path = folder + filename
+    path = os.path.join(folder + filename)
     data = pd.read_csv(path)
     return data

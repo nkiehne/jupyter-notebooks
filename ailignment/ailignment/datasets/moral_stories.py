@@ -1,9 +1,11 @@
 # Data loaders returning `pandas` objects
 import pandas as pd
 import json
+import os
 
+from .util import get_data_path
 
-def get_moral_stories():
+def get_moral_stories(filename = "moral_stories_datasets.tar.xz"):
     '''
     Loads the `Moral-Stories` dataset by Emelin et al.
     Github & paper: https://github.com/demelin/moral_stories
@@ -25,7 +27,7 @@ def get_moral_stories():
         All values are string. No NaNs.
 
     '''
-    path = "data/moral_stories_datasets.tar.xz"
+    path = os.path.join(get_data_path(), filename)
     data = pd.read_csv(path, compression="xz", sep="\t", converters={0:json.loads})
     data = pd.DataFrame(list(data["moral_stories_datasets/"]))
     # filter out the 700k superfluous NaN entries

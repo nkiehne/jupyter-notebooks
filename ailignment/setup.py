@@ -19,4 +19,4 @@ setup(name='ai-alignment',
                         "matplotlib"],
       extras_require={},
       classifiers=[],
-      packages=find_packages("ailignment"))
+      packages=find_packages())
