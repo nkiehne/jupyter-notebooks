@@ -26,8 +26,7 @@ def get_data_path():
     data = os.path.join(repo, "data")
     if not os.path.exists(data):
         raise ValueError(f"Failed to find the `data` folder in path `{path}`")
-    return data
-    
+    return data   
 
 def tokenize_and_split(dataset, tokenizer, sentence_col="text"):
     '''

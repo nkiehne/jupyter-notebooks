@@ -14,12 +14,7 @@ It serves as a starting point for my research on the Alignment Problem of AI.
 ```shell
 python -m venv env
 ```
-3. Run `run_setup.bat`
-4. Install `PyTorch`, `Spacy` and `cupy` according to your GPU/CPU needs. E.g. for CUDA 11.2: 
-```shell
-pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio===0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
-pip install spacy[cuda112]
-```
+3. Run `run_setup.bat` and optionally, `run_setup_dev.bat` for the `Spyder` IDE
 4. Start jupyter with `start_jupyter.bat`
 
 ## Linux

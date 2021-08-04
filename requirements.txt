@@ -7,3 +7,4 @@ matplotlib
 transformers
 datasets
 sklearn
+nltk
