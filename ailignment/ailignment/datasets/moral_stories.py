@@ -63,6 +63,13 @@ def make_action_classification_dataframe(dataframe):
     data = pd.concat([moral_df, immoral_df], ignore_index=True)
     return data
 
+import spacy
+
+from string import punctuation
+from nltk.corpus import stopwords
+from collections import Counter
+
+
 def _lemmatize(line, nlp, STOP_WORDS=None):
     """ Helper function for obtaining various word representations """
     '''
@@ -92,7 +99,7 @@ def _lemmatize(line, nlp, STOP_WORDS=None):
     spacy_to_ws_map = dict()
     ws_loc = 0
     ws_tok = ws_tokens[ws_loc]
-
+    '''
     for spacy_loc, spacy_tok in enumerate(spacy_tokens):
         while True:
             # Map whitespace tokens to be identical to spacy tokens
@@ -129,7 +136,7 @@ def _lemmatize(line, nlp, STOP_WORDS=None):
     assert spacy_covered == [n for n in range(len(spacy_tokens))], \
         'WS-SpaCy mapping does not cover all SpaCy tokens: {}; number of tokens: {}' \
         .format(spacy_covered, len(spacy_tokens))
-
+    '''
     if STOP_WORDS is not None:
         # Filter out stopwords
         nsw_spacy_lemmas = list()
@@ -144,10 +151,60 @@ def _lemmatize(line, nlp, STOP_WORDS=None):
     return spacy_lemmas, ws_tokens, spacy_to_ws_map
 
 
-import spacy
+def _lemmatize_series(series, nlp, STOP_WORDS=None):
+    '''
+    Given a series of strings, returns a DataFrame(["lemmas", "tokens", "maps"])
+    of the lemmatized strings according to `_lemmatize` function.
+    '''
+    translation_table = str.maketrans(' ', ' ', punctuation)
+    series = series.map(lambda x: x.translate(translation_table))
+    series = series.map(lambda x: _lemmatize(x, nlp, STOP_WORDS))
+    data = pd.DataFrame(series.to_list(), columns=["lemmas", "tokens", "maps"])
+    return data
 
-from string import punctuation
-from nltk.corpus import stopwords
+def _get_lexical_bias_split(columns, top_n, split_size):
+    '''
+    Given two columns of the moral stories dataset, computes how biased the
+    lemmas of the values are towards each of the columns. It draws the top_n
+    most biased lemmas and counts for each story, how many occur in the
+    corresponding column.
+    Returns the moral stories dataset in ascending order of biasness:
+        test set (len split_size)
+        val set (len split_size)
+        train set (rest of the stories)
+    '''
+    nlp = spacy.load('en_core_web_sm', disable=['parser', 'textcat'])
+    STOP_WORDS = stopwords.words('english')
+    stories = get_moral_stories()
+    
+    data = [_lemmatize_series(stories[c], nlp, STOP_WORDS) for c in columns]
+    
+    # count lemmas per column
+    counts = [Counter() for i in data]
+    for d,c in zip(data, counts):
+        d["lemmas"].apply(c.update)
+        c.pop("<STPWRD>")
+    
+    # compute frequency diffs between words
+    if len(counts) != 2: raise ValueError("We are only working with 2 columns here")
+    left, right = counts
+    all_lemmas = set(left.keys()).union(right.keys())
+    freq_diffs = [(l, left.get(l,0) - right.get(l,0)) for l in all_lemmas]
+    freq_diffs = sorted(freq_diffs, key=lambda x: abs(x[1]), reverse=True)[:top_n]
+    
+    # count how many biased lemmas are in the columns
+    freq_lemmas = [[x[0] for x in freq_diffs if x[1] >=0], [x[0] for x in freq_diffs if x[1] <0]]
+    freq_lemmas = [set(x) for x in freq_lemmas]
+    stories["biasness"] = sum([d["lemmas"].map(\
+        lambda x: len(f.intersection(x))) for d,f in zip(data, freq_lemmas)])
+    # sort by bias-ness in ascending order
+    stories = stories.sort_values("biasness")
+    
+    # create splits
+    test = stories[:split_size]
+    val = stories[split_size:split_size*2]
+    train = stories[split_size*2:]
+    return train, val, test
 
 def get_action_lexical_bias_split(top_n = 100, split_size=1000):
     '''
@@ -165,9 +222,25 @@ def get_action_lexical_bias_split(top_n = 100, split_size=1000):
     None.
 
     '''
-    nlp = spacy.load('en_core_web_sm', disable=['parser', 'textcat'])
-    STOP_WORDS = stopwords.words('english')
-    stories = get_moral_stories()
     columns = ["moral_action", "immoral_action"]
-    
-    
+    return _get_lexical_bias_split(columns, top_n, split_size)
+
+def get_consequence_lexical_bias_split(top_n = 100, split_size=1000):
+    '''
+    Generates the Lexical Bias Split for the Consequences.
+
+    Parameters
+    ----------
+    top_n : int, optional
+        The number of most frequent lemmas to consider. The default is 100.
+    split_size : int, optional
+        Size of the dev / test set. The default is 1000.
+
+    Returns
+    -------
+    None.
+
+    '''
+    columns = ["moral_consequence", "immoral_consequence"]
+    return _get_lexical_bias_split(columns, top_n, split_size)
+
