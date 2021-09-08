@@ -9,3 +9,5 @@ datasets
 sklearn
 nltk
 pyxDamerauLevenshtein
+gender-guesser
+textblob

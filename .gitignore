@@ -8,3 +8,4 @@ results
 data/*.tar
 data/*.tar.xz
 data/ethics/
+data/*.dat
