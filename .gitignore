@@ -9,3 +9,5 @@ data/*.tar
 data/*.tar.xz
 data/ethics/
 data/*.dat
+data/*.zip
+data/models/*/
