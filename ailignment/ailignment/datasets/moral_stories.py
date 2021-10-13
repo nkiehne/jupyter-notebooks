@@ -1,7 +1,10 @@
 # Data loaders returning `pandas` objects
 import pandas as pd
+import numpy as np
 import json
 import os
+from sklearn.model_selection import train_test_split
+
 
 from .util import get_data_path
 
@@ -35,7 +38,7 @@ def get_moral_stories(filename = "moral_stories_datasets.tar.xz"):
     data = data.drop(["label"], axis=1)
     return data
 
-def make_action_classification_dataframe(dataframe):
+def make_action_classification_dataframe(dataframe, **split_kwargs):
     '''
     Returns a dataframe with columns:
     `norm`, `action`, `situation`, `intention`, `consequence`,
@@ -45,6 +48,9 @@ def make_action_classification_dataframe(dataframe):
         `action`: Is either the `moral_action` or `immoral_action`
         `label`: 1 if `action` is moral, 0 else
         `consequence`: The corresponding consequence of an action
+        
+    Returns training and testing splits of the data according to sklearn's
+    train_test_split
     '''
 
     immoral_df = dataframe.drop(["moral_action", "moral_consequence"], axis=1)
@@ -60,8 +66,16 @@ def make_action_classification_dataframe(dataframe):
     immoral_df["labels"] = 0
     moral_df["labels"] = 1
     
-    data = pd.concat([moral_df, immoral_df], ignore_index=True)
-    return data
+    # for splitting, we do not want to split up actions of the same norm!
+    seed = np.random.randint(1)
+    im_train, im_test = train_test_split(immoral_df, random_state=seed, **split_kwargs)
+    m_train, m_test = train_test_split(moral_df, random_state=seed, **split_kwargs)
+    
+    
+    train = pd.concat([im_train, m_train], ignore_index=True)
+    test = pd.concat([im_test, m_test], ignore_index=True)
+
+    return train, test
 
 import spacy
 
