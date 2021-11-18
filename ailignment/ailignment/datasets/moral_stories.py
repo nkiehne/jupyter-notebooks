@@ -67,13 +67,13 @@ def make_action_classification_dataframe(dataframe, **split_kwargs):
     moral_df["labels"] = 1
     
     # for splitting, we do not want to split up actions of the same norm!
-    seed = np.random.randint(1)
+    seed = split_kwargs.get("seed", np.random.randint(1))
     im_train, im_test = train_test_split(immoral_df, random_state=seed, **split_kwargs)
     m_train, m_test = train_test_split(moral_df, random_state=seed, **split_kwargs)
     
     
-    train = pd.concat([im_train, m_train], ignore_index=True)
-    test = pd.concat([im_test, m_test], ignore_index=True)
+    train = pd.concat([im_train, m_train], ignore_index=True).sample(frac=1)
+    test = pd.concat([im_test, m_test], ignore_index=True).sample(frac=1)
 
     return train, test
 
@@ -258,3 +258,82 @@ def get_consequence_lexical_bias_split(top_n = 100, split_size=1000):
     columns = ["moral_consequence", "immoral_consequence"]
     return _get_lexical_bias_split(columns, top_n, split_size)
 
+def simplify_norm_value(row):
+    '''
+    Casts each norm judgment into "It is bad" or "It is good" based on
+    the sentiment.
+    To be used in pandas.DataFrame.apply function.
+    '''
+    x = row.copy()
+    x["norm_value"] = "It is bad" if x["norm_sentiment"] == "NEGATIVE" else "It is good"
+    return x
+
+def randomize_norm_value(good_values, bad_values):
+    '''
+    Applies a random new judgment to a norm based on the norm's
+    sentiment. "norm_sentiment==NEGATIVE" results in a value
+    chosen from bad_values. POSITIVE works analogous.
+    To be used in pandas.DataFrame.apply function.
+    '''
+    d = {"NEGATIVE":bad_values, "POSITIVE":good_values}
+    def r(row):
+        row["norm_value"] = np.random.choice(d[row["norm_sentiment"]])
+        return row
+    return r
+
+def flip_norm(good_values, bad_values, p=0.5):
+    '''
+    Returns a function that flips the given norm with probability p.
+    Flipping means changing the value judgment to the opposite sentiment.
+    Specifically:
+    - norm_sentiment: A negative sentiment becomes good, e.g. "It is bad" will be "It is good"
+    - The moral and immoral actions will be swapped to account for the flip
+    - Same for the respective consequences
+    
+    In both cases (flip and non flip), the norm field will be re-initialised
+    to the concatenation of norm_value and norm_action.
+
+    '''
+    ## NOTE: LABELS ARE FLIPPED HERE ON PURPOSE!!
+    value_map= {"POSITIVE":bad_values, "NEGATIVE":good_values}
+
+    def flip(row):
+        x = row.copy()
+        x["flipped"] = False
+        if np.random.rand()<=p:
+            # choose a random new norm value of opposite sentiment
+            x["norm_value"] = np.random.choice(value_map[x["norm_sentiment"]])
+            x["norm_sentiment"] = "POSITIVE" if x["norm_sentiment"] == "NEGATIVE" else "NEGATIVE"
+
+            x["moral_action"] = row["immoral_action"]
+            x["moral_consequence"] = row["immoral_consequence"]
+            x["immoral_action"] = row["moral_action"]
+            x["immoral_consequence"] = row["moral_consequence"]
+            x["flipped"] = True
+        
+        x["norm"] = x["norm_value"] + " " + x["norm_action"]
+        return x
+    return flip
+
+def get_random_value_dataset(dataframe, p=0.5, good_values=None, bad_values=None, top_n=20):
+    '''
+    Returns a randomized Moral Stories dataset where
+    `p`: float
+        Controls the probability of a norm being flipped into
+        the opposite judgment (what was good becomes bad)
+    `*_values` lists of values from which to sample good or
+        bad norm_values, e.g. ["It is good", "it is nice"]
+    `top_n`: int, if `*_values` is None, then the top n
+        judgments in the dataset are used
+    '''
+    if good_values is None or bad_values is None:
+        # get frequent norm judgments
+        top_negative = dataframe.groupby("norm_sentiment").get_group("NEGATIVE")["norm_value"].value_counts()
+        top_positive = dataframe.groupby("norm_sentiment").get_group("POSITIVE")["norm_value"].value_counts()
+        good_values = top_positive[:top_n].index
+        bad_values = top_negative[:top_n].index
+
+    random_values = dataframe.copy()
+    random_values = random_values.apply(randomize_norm_value(good_values, bad_values), axis=1)
+    random_values = random_values.apply(flip_norm(good_values, bad_values, p), axis=1)
+    return random_values

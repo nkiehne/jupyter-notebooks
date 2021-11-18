@@ -9,7 +9,7 @@ import gc
 import torch
 
 from transformers import (
-    AutoModelForSequenceClassification, 
+    AutoModelForSequenceClassification, AutoConfig,
      Trainer, TrainingArguments, AutoModelWithLMHead, AutoTokenizer,
 )
 
@@ -43,7 +43,7 @@ def clean_up_mem(func=None):
 
 
 @clean_up_mem
-def sequence_classification(data_func, model, training_args, compute_metrics=None):
+def sequence_classification(data_func, model, training_args, compute_metrics=None, use_pretrained=True):
     '''
     Runs a Sequence Classification task with the given data, model, metrics
     and training arguments
@@ -60,7 +60,9 @@ def sequence_classification(data_func, model, training_args, compute_metrics=Non
         The metrics to evaluate on, if desired.
     training_args : `transformers.TrainingArguments`
         The arguments for training, see the corr. doc.
-
+    use_pretrained : bool, True per default
+        Whether to use the pre-trained weights or randomly initialize the model.
+        In any case, the pre-trained tokenizer will be used!
     Returns
     -------
     A list of the training history. Note, that all logs are in a single list,
@@ -68,7 +70,11 @@ def sequence_classification(data_func, model, training_args, compute_metrics=Non
 
     '''
     tokenizer = AutoTokenizer.from_pretrained(model)
-    model = AutoModelForSequenceClassification.from_pretrained(model)
+    if use_pretrained:
+        model = AutoModelForSequenceClassification.from_pretrained(model)
+    else:
+        config = AutoConfig.from_pretrained(model)
+        model = AutoModelForSequenceClassification.from_config(config)
 
     train, test = data_func(tokenizer)
 

@@ -11,3 +11,4 @@ data/ethics/
 data/*.dat
 data/*.zip
 data/models/*/
+nohup.out
