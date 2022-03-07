@@ -43,7 +43,7 @@ def clean_up_mem(func=None):
 
 
 @clean_up_mem
-def sequence_classification(data_func, model, training_args, compute_metrics=None, use_pretrained=True):
+def sequence_classification(data_func, model, training_args, tokenizer=None, compute_metrics=None, use_pretrained=True):
     '''
     Runs a Sequence Classification task with the given data, model, metrics
     and training arguments
@@ -69,7 +69,8 @@ def sequence_classification(data_func, model, training_args, compute_metrics=Non
     disregarding whether belonging to eval or training.
 
     '''
-    tokenizer = AutoTokenizer.from_pretrained(model)
+    if tokenizer is None:
+        tokenizer = AutoTokenizer.from_pretrained(model)
     if use_pretrained:
         model = AutoModelForSequenceClassification.from_pretrained(model)
     else:
